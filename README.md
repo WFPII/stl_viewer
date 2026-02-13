@@ -150,7 +150,3 @@ stl_viewer/
 **vcpkg issues**: Delete `vcpkg_installed/` and `build/` and re-run `setup.ps1`. Check that `$env:VCPKG_ROOT` is set correctly.
 
 **IntelliSense errors in VS Code**: Select the CMake kit (status bar) → choose the Visual Studio compiler. Run "CMake: Configure" from the command palette.
-
-## License
-
-MIT License. Dear ImGui (MIT) and stb (public domain) used under their respective licenses.
