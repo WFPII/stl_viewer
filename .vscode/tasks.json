@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake: Build",
+            "type": "cmake",
+            "command": "build",
+            "targets": ["stl_viewer"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$msCompile", "$gcc"]
+        },
+        {
+            "label": "CMake: Clean Rebuild",
+            "type": "cmake",
+            "command": "cleanRebuild",
+            "targets": ["stl_viewer"],
+            "group": "build",
+            "problemMatcher": ["$msCompile", "$gcc"]
+        },
+        {
+            "label": "Run setup.ps1 (first time)",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\setup.ps1"],
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}
