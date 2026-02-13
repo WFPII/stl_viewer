@@ -1,0 +1,9 @@
+{
+    "name": "stl-viewer",
+    "version": "1.0.0",
+    "description": "STL Viewer & Exporter - View and batch-export STL files to PNG",
+    "dependencies": [
+        "glfw3",
+        "glew"
+    ]
+}

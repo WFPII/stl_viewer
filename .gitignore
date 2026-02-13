@@ -1,0 +1,19 @@
+# Build artifacts
+build/
+out/
+
+# IDE
+.vs/
+*.user
+*.suo
+
+# vcpkg local installs
+vcpkg_installed/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Downloaded dependencies (re-download with setup script)
+imgui/*.cpp
+imgui/*.h

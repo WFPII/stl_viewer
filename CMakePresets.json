@@ -1,0 +1,129 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "vcpkg-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": {
+                    "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                    "type": "FILEPATH"
+                }
+            }
+        },
+        {
+            "name": "debug",
+            "displayName": "Debug",
+            "inherits": "vcpkg-base",
+            "binaryDir": "${sourceDir}/build/debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release",
+            "inherits": "vcpkg-base",
+            "binaryDir": "${sourceDir}/build/release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "windows-debug",
+            "displayName": "Windows Debug (Ninja)",
+            "inherits": "vcpkg-base",
+            "binaryDir": "${sourceDir}/build/debug",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "windows-release",
+            "displayName": "Windows Release (Ninja)",
+            "inherits": "vcpkg-base",
+            "binaryDir": "${sourceDir}/build/release",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "windows-vs-debug",
+            "displayName": "Windows Debug (Visual Studio)",
+            "inherits": "vcpkg-base",
+            "binaryDir": "${sourceDir}/build/debug",
+            "generator": "Visual Studio 17 2022",
+            "architecture": {
+                "value": "x64",
+                "strategy": "set"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "windows-vs-release",
+            "displayName": "Windows Release (Visual Studio)",
+            "inherits": "vcpkg-base",
+            "binaryDir": "${sourceDir}/build/release",
+            "generator": "Visual Studio 17 2022",
+            "architecture": {
+                "value": "x64",
+                "strategy": "set"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "debug",
+            "configurePreset": "debug"
+        },
+        {
+            "name": "release",
+            "configurePreset": "release"
+        },
+        {
+            "name": "windows-debug",
+            "configurePreset": "windows-debug"
+        },
+        {
+            "name": "windows-release",
+            "configurePreset": "windows-release"
+        },
+        {
+            "name": "windows-vs-debug",
+            "configurePreset": "windows-vs-debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "windows-vs-release",
+            "configurePreset": "windows-vs-release",
+            "configuration": "Release"
+        }
+    ]
+}
