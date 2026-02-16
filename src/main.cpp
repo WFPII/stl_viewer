@@ -62,6 +62,7 @@ struct AppState {
     char inputPath[512]    = "";
     char outputDir[512]    = "";
     bool recursive         = false;
+    bool exportToSourceDir = true;  // Export PNGs next to their source STL files
 
     // Mouse orbit
     bool   dragging        = false;
@@ -189,9 +190,16 @@ static void exportCurrent(AppState& app) {
     if (app.currentModel < 0 || app.currentModel >= (int)app.models.size()) return;
 
     auto& model = app.models[app.currentModel];
-    std::string outPath = Exporter::deriveOutputPath(model.filename, app.outputDir);
 
-    // Try native dialog on Windows
+    std::string outPath;
+    if (app.exportToSourceDir) {
+        // Export next to the original STL file
+        outPath = Exporter::deriveOutputPath(model.fullpath, "");
+    } else {
+        outPath = Exporter::deriveOutputPath(model.fullpath, app.outputDir);
+    }
+
+    // Try native save-as dialog on Windows
     std::string nativePath = nativeSaveFile(outPath);
     if (!nativePath.empty()) outPath = nativePath;
 
@@ -217,12 +225,17 @@ static void exportAll(AppState& app) {
     app.exportedCount = 0;
     app.totalToExport = (int)app.models.size();
 
-    std::string outDir = std::string(app.outputDir);
     int success = 0, failed = 0;
 
     for (size_t i = 0; i < app.models.size(); ++i) {
         auto& model = app.models[i];
-        std::string outPath = Exporter::deriveOutputPath(model.filename, outDir);
+
+        std::string outPath;
+        if (app.exportToSourceDir) {
+            outPath = Exporter::deriveOutputPath(model.fullpath, "");
+        } else {
+            outPath = Exporter::deriveOutputPath(model.fullpath, app.outputDir);
+        }
 
         std::vector<unsigned char> pixels;
         if (app.renderer.renderToBuffer(model, app.settings,
@@ -332,14 +345,34 @@ static void drawUI(AppState& app) {
 
     // ── File Loading ────────────────────────────────────
     if (ImGui::CollapsingHeader("Load Files", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::InputText("Path", app.inputPath, sizeof(app.inputPath));
-        ImGui::SameLine();
-        if (ImGui::Button("...##file")) {
+
+        // Browse File button — opens native file picker and loads immediately
+        if (ImGui::Button("Browse File...", ImVec2(-1, 0))) {
             std::string path = nativeOpenFile();
-            if (!path.empty()) strncpy(app.inputPath, path.c_str(), sizeof(app.inputPath) - 1);
+            if (!path.empty()) {
+                strncpy(app.inputPath, path.c_str(), sizeof(app.inputPath) - 1);
+                loadSingleFile(app, path);
+            }
         }
 
-        ImGui::Checkbox("Recursive subfolders", &app.recursive);
+        // Browse Folder button — opens native folder picker and loads immediately
+        if (ImGui::Button("Browse Folder...", ImVec2(-1, 0))) {
+            std::string dir = nativeOpenFolder();
+            if (!dir.empty()) {
+                strncpy(app.inputPath, dir.c_str(), sizeof(app.inputPath) - 1);
+                loadFolder(app, dir, app.recursive);
+            }
+        }
+
+        ImGui::Checkbox("Include subfolders", &app.recursive);
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        // Manual path entry (fallback)
+        ImGui::TextDisabled("Or enter path manually:");
+        ImGui::InputText("##path", app.inputPath, sizeof(app.inputPath));
 
         if (ImGui::Button("Load File", ImVec2(145, 0))) {
             std::string path(app.inputPath);
@@ -351,6 +384,7 @@ static void drawUI(AppState& app) {
             if (!dir.empty()) loadFolder(app, dir, app.recursive);
         }
 
+        ImGui::Spacing();
         ImGui::TextWrapped("Tip: You can also drag & drop STL files or folders onto the window.");
     }
 
@@ -421,11 +455,30 @@ static void drawUI(AppState& app) {
 
     // ── Export ───────────────────────────────────────────
     if (ImGui::CollapsingHeader("Export", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::InputText("Output Dir", app.outputDir, sizeof(app.outputDir));
         ImGui::InputInt("Width",  &app.settings.exportWidth);
         ImGui::InputInt("Height", &app.settings.exportHeight);
         app.settings.exportWidth  = std::max(app.settings.exportWidth, 64);
         app.settings.exportHeight = std::max(app.settings.exportHeight, 64);
+
+        ImGui::Spacing();
+
+        // Export destination toggle
+        ImGui::Checkbox("Save next to source STL files", &app.exportToSourceDir);
+
+        if (!app.exportToSourceDir) {
+            ImGui::InputText("##outdir", app.outputDir, sizeof(app.outputDir));
+            ImGui::SameLine();
+            if (ImGui::Button("Browse...##outdir")) {
+                std::string dir = nativeOpenFolder();
+                if (!dir.empty()) {
+                    strncpy(app.outputDir, dir.c_str(), sizeof(app.outputDir) - 1);
+                }
+            }
+        } else {
+            ImGui::TextDisabled("PNGs will be saved in the same folder as each STL.");
+        }
+
+        ImGui::Spacing();
 
         bool hasModel = !app.models.empty() && app.currentModel >= 0;
 

@@ -22,6 +22,7 @@ struct BoundingBox {
 
 struct STLModel {
     std::string           filename;
+    std::string           fullpath;   // Full path to the original STL file
     std::vector<Triangle> triangles;
     BoundingBox           bounds;
 

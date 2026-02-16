@@ -133,6 +133,7 @@ static void fixNormals(std::vector<Triangle>& triangles) {
 
 bool STLModel::load(const std::string& filepath) {
     filename = fs::path(filepath).filename().string();
+    fullpath = fs::absolute(filepath).string();
     triangles.clear();
 
     bool ok;
